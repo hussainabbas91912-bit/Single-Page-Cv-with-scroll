@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+  Single-page CV website — Hussain Abbas
+  Self-contained: plain HTML + CSS + JS, no frameworks or
+  external dependencies. Open this file directly in a browser.
+
+  To reuse for another person:
+  1. Replace the text content in the <main> sections.
+  2. Update the palette custom properties in :root.
+  3. Update the nav labels in <header> to match the section ids.
+  ============================================================
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hussain Abbas — CV</title>
+  <meta name="description" content="Single-page CV of Hussain Abbas, WordPress developer: profile, projects, experience, education and expertise." />
+
+  <style>
+    /* ==========================================================
+       1. DESIGN TOKENS
+       Palette derived from the CV's own visual tone:
+       cream paper, near-black ink, golden-yellow and sky-blue
+       accent circles, and the CV's blue link colour.
+       Change these values to re-skin the whole page.
+       ========================================================== */
+    :root {
+      /* Palette */
+      --color-paper:        #FCF9F0;  /* page background (CV paper) */
+      --color-ink:          #1C1C1C;  /* primary text (CV headings) */
+      --color-ink-soft:     #4A4A46;  /* secondary text (CV body) */
+      --color-accent:       #F7C34C;  /* golden-yellow circle */
+      --color-accent-soft:  #A9DCF3;  /* sky-blue circle */
+      --color-link:         #2E7CD6;  /* CV link blue */
+      --color-card:         #FFFFFF;  /* card surfaces */
+      --color-border:       #EAE3D2;  /* subtle card borders */
+
+      /* Typography */
+      --font-sans: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+
+      /* Layout */
+      --max-width: 60rem;
+      --radius: 14px;
+      --nav-height: 3.5rem;
+    }
+
+    /* ==========================================================
+       2. RESET & BASE
+       ========================================================== */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Smooth scrolling for the anchor links in the menu.
+       The scroll-padding keeps section titles clear of the
+       fixed nav bar when the page jumps to them. */
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: calc(var(--nav-height) + 1rem);
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--color-paper);
+      color: var(--color-ink-soft);
+      line-height: 1.6;
+    }
+
+    /* ==========================================================
+       3. FIXED NAVIGATION BAR
+       ========================================================== */
+    .site-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      height: var(--nav-height);
+      background-color: var(--color-ink);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.25rem;
+    }
+
+    .site-nav .brand {
+      color: var(--color-paper);
+      font-weight: 700;
+      font-size: 1rem;
+      text-decoration: none;
+      letter-spacing: 0.02em;
+    }
+
+    /* Menu links */
+    .nav-links {
+      display: flex;
+      gap: 0.25rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      display: block;
+      padding: 0.4rem 0.75rem;
+      border-radius: 999px;
+      color: rgba(252, 249, 240, 0.75);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--color-paper);
+    }
+
+    /* Active section highlight (set by the scroll observer) */
+    .nav-links a.active {
+      color: var(--color-ink);
+      background-color: var(--color-accent);
+      font-weight: 600;
+    }
+
+    /* Hamburger button — hidden on desktop */
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: 0;
+      cursor: pointer;
+      padding: 0.4rem;
+    }
+
+    .nav-toggle span,
+    .nav-toggle span::before,
+    .nav-toggle span::after {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background-color: var(--color-paper);
+      border-radius: 2px;
+      transition: transform 0.25s ease, opacity 0.25s ease;
+    }
+
+    .nav-toggle span { position: relative; }
+    .nav-toggle span::before,
+    .nav-toggle span::after {
+      content: "";
+      position: absolute;
+      left: 0;
+    }
+    .nav-toggle span::before { top: -7px; }
+    .nav-toggle span::after  { top:  7px; }
+
+    /* Morph the hamburger into a close icon when open */
+    .nav-toggle.open span { transform: rotate(45deg); }
+    .nav-toggle.open span::before { top: 0; transform: rotate(-90deg); }
+    .nav-toggle.open span::after  { top: 0; opacity: 0; }
+
+    /* ==========================================================
+       4. HERO (NAME + CONTACT)
+       ========================================================== */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: calc(var(--nav-height) + 4rem) 1.5rem 3.5rem;
+      text-align: center;
+    }
+
+    /* Decorative accent circles, echoing the CV's artwork */
+    .hero .blob {
+      position: absolute;
+      border-radius: 50%;
+      z-index: 0;
+    }
+    .hero .blob--gold {
+      width: 220px;
+      height: 220px;
+      background-color: var(--color-accent);
+      top: calc(var(--nav-height) + 1rem);
+      left: -70px;
+    }
+    .hero .blob--sky {
+      width: 130px;
+      height: 130px;
+      background-color: var(--color-accent-soft);
+      top: calc(var(--nav-height) + 11rem);
+      right: 8%;
+    }
+
+    .hero > .hero-inner {
+      position: relative;
+      z-index: 1;
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      color: var(--color-ink);
+      line-height: 1.05;
+      letter-spacing: 0.01em;
+    }
+
+    .hero .tagline {
+      margin-top: 0.75rem;
+      font-size: 1.05rem;
+      max-width: 38rem;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Contact chips pulled from the CV header block */
+    .hero .contact-list {
+      margin-top: 1.75rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.6rem;
+      list-style: none;
+    }
+
+    .contact-list a,
+    .contact-list span {
+      display: inline-block;
+      padding: 0.45rem 0.9rem;
+      border: 1px solid var(--color-border);
+      border-radius: 999px;
+      background-color: var(--color-card);
+      color: var(--color-ink-soft);
+      font-size: 0.85rem;
+      text-decoration: none;
+      transition: border-color 0.2s ease, color 0.2s ease;
+    }
+
+    .contact-list a:hover {
+      border-color: var(--color-link);
+      color: var(--color-link);
+    }
+
+    /* ==========================================================
+       5. SECTIONS
+       ========================================================== */
+    .section {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+    }
+
+    .section h2 {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--color-ink);
+      font-size: 1.6rem;
+      margin-bottom: 1.75rem;
+    }
+
+    /* Small accent dot before each section title */
+    .section h2::before {
+      content: "";
+      flex: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background-color: var(--color-accent);
+    }
+
+    .section:nth-of-type(even) h2::before {
+      background-color: var(--color-accent-soft);
+    }
+
+    /* Card grid: projects, education, experience entries */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .card {
+      background-color: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.35rem;
+    }
+
+    .card h3 {
+      color: var(--color-ink);
+      font-size: 1rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .card h3 a {
+      color: var(--color-link);
+      text-decoration: none;
+    }
+
+    .card h3 a:hover {
+      text-decoration: underline;
+    }
+
+    .card .meta {
+      display: inline-block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--color-ink);
+      background-color: var(--color-accent-soft);
+      border-radius: 999px;
+      padding: 0.15rem 0.6rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .card p {
+      font-size: 0.95rem;
+    }
+
+    /* About: short profile paragraph */
+    .about-text {
+      max-width: 46rem;
+      font-size: 1.05rem;
+    }
+
+    /* Skills: pill list */
+    .skill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      list-style: none;
+    }
+
+    .skill-list li {
+      background-color: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: 999px;
+      padding: 0.45rem 0.95rem;
+      font-size: 0.9rem;
+      color: var(--color-ink);
+    }
+
+    /* ==========================================================
+       6. FOOTER
+       ========================================================== */
+    .site-footer {
+      text-align: center;
+      padding: 2rem 1.5rem 2.5rem;
+      font-size: 0.85rem;
+      color: var(--color-ink-soft);
+    }
+
+    .site-footer a {
+      color: var(--color-link);
+      text-decoration: none;
+    }
+
+    .site-footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* ==========================================================
+       7. RESPONSIVE — tablet and mobile
+       ========================================================== */
+    @media (max-width: 46em) {
+      /* Collapse the menu behind a hamburger button */
+      .nav-toggle {
+        display: block;
+      }
+
+      .nav-links {
+        position: fixed;
+        top: var(--nav-height);
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        gap: 0.25rem;
+        padding: 0.75rem 1rem 1rem;
+        background-color: var(--color-ink);
+        transform: translateY(-120%);
+        opacity: 0;
+        visibility: hidden;
+        transition: transform 0.25s ease, opacity 0.25s ease, visibility 0.25s;
+      }
+
+      /* Menu opens when the header carries .menu-open */
+      .site-nav.menu-open .nav-links {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .nav-links a {
+        padding: 0.7rem 0.9rem;
+        font-size: 0.95rem;
+      }
+
+      /* Larger tap targets and tighter spacing */
+      .section { padding: 2.25rem 1.25rem; }
+      .hero { padding: calc(var(--nav-height) + 3rem) 1.25rem 2.5rem; }
+      .hero .blob--gold { width: 160px; height: 160px; left: -60px; }
+      .hero .blob--sky  { width: 90px;  height: 90px;  top: calc(var(--nav-height) + 9rem); }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ============ FIXED NAV BAR ============ -->
+  <header class="site-nav" id="site-nav">
+    <a class="brand" href="#top">Hussain Abbas</a>
+
+    <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-links">
+      <span></span>
+    </button>
+
+    <nav>
+      <ul class="nav-links" id="nav-links">
+        <!-- Links must match the section ids below -->
+        <li><a href="#about">About</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#experience">Experience</a></li>
+        <li><a href="#education">Education</a></li>
+        <li><a href="#expertise">Expertise</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="top">
+    <!-- ============ HERO: NAME + CONTACT ============ -->
+    <section class="hero">
+      <span class="blob blob--gold" aria-hidden="true"></span>
+      <span class="blob blob--sky" aria-hidden="true"></span>
+
+      <div class="hero-inner">
+        <h1>HUSSAIN ABBAS</h1>
+        <p class="tagline">
+          WordPress developer building websites for international and local
+          clients — turning ideas into visually appealing online experiences.
+        </p>
+
+        <!-- Contact details taken from the CV -->
+        <ul class="contact-list">
+          <li><span>Lahore, Pakistan</span></li>
+          <li><a href="tel:+923203039049">+92 320 3039049</a></li>
+          <li><a href="mailto:hussainabbas91912@gmail.com">hussainabbas91912@gmail.com</a></li>
+          <li><a href="https://www.linkedin.com/in/hussain-abbas-78b94b256/" target="_blank" rel="noopener">LinkedIn</a></li>
+          <li><a href="https://www.techluminara.com" target="_blank" rel="noopener">Techluminara.com</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ SECTION 1: ABOUT ============ -->
+    <section class="section" id="about">
+      <h2>About Me</h2>
+      <p class="about-text">
+        As a WordPress enthusiast, I joyfully build websites for international
+        and local clients, tailoring solutions to exceed the unique needs of
+        businesses in our community. Transforming ideas into visually appealing
+        online experiences is my passion!
+      </p>
+    </section>
+
+    <!-- ============ SECTION 2: PROJECTS ============ -->
+    <section class="section" id="projects">
+      <h2>Projects</h2>
+      <div class="card-grid">
+        <article class="card">
+          <h3><a href="https://famousbirthdays.info" target="_blank" rel="noopener">famousbirthdays.info</a></h3>
+          <p>Celebrating notable birthdays worldwide effortlessly.</p>
+        </article>
+        <article class="card">
+          <h3><a href="https://techluminara.com" target="_blank" rel="noopener">techluminara.com</a></h3>
+          <p>My portfolio showcasing innovative tech projects and creative solutions.</p>
+        </article>
+        <article class="card">
+          <h3><a href="https://peaknizerlogistics.com" target="_blank" rel="noopener">peaknizerlogistics.com</a></h3>
+          <p>Optimizing logistics for seamless global operations.</p>
+        </article>
+        <article class="card">
+          <h3><a href="https://ziaraatguide.com" target="_blank" rel="noopener">ziaraatguide.com</a></h3>
+          <p>Top-ranked Ziarat tour guide for sacred pilgrimages.</p>
+        </article>
+        <article class="card">
+          <h3><a href="https://eronest.com" target="_blank" rel="noopener">eronest.com</a></h3>
+          <p>WooCommerce-powered marketplace for fresh, natural foods.</p>
+        </article>
+        <article class="card">
+          <h3><a href="https://chiccharmcosmetic.store" target="_blank" rel="noopener">chiccharmcosmetic.store</a></h3>
+          <p>WooCommerce-powered beauty destination for luxury cosmetics.</p>
+        </article>
+        <article class="card">
+          <h3><a href="https://trendistaan.pk" target="_blank" rel="noopener">trendistaan.pk</a></h3>
+          <p>One-stop online store for chic fashion, accessories &amp; more.</p>
+        </article>
+        <article class="card">
+          <h3><a href="https://eurobridgeconsultants.com" target="_blank" rel="noopener">eurobridgeconsultants.com</a></h3>
+          <p>Bridging opportunities with expert consultancy services.</p>
+        </article>
+        <article class="card">
+          <h3><a href="https://arbaeenwalk.info" target="_blank" rel="noopener">arbaeenwalk.info</a></h3>
+          <p>Guiding pilgrims with faith-driven insights and resources.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============ SECTION 3: EXPERIENCE ============ -->
+    <section class="section" id="experience">
+      <h2>Work Experience</h2>
+      <div class="card-grid">
+        <article class="card">
+          <h3>WordPress Developer (Freelance Agreement)</h3>
+          <span class="meta">2 months</span>
+          <p>
+            Developed two company websites and multiple client sites, focusing
+            on responsive design and user experience to enhance online presence.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Remote WordPress Developer</h3>
+          <span class="meta">Present</span>
+          <p>
+            Collaborated with a US-based SEO agency, optimizing client websites
+            for performance and search visibility while implementing WordPress
+            solutions tailored to client needs.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============ SECTION 4: EDUCATION ============ -->
+    <section class="section" id="education">
+      <h2>Education</h2>
+      <div class="card-grid">
+        <article class="card">
+          <h3>WordPress Development</h3>
+          <span class="meta">2022 · Cycarts Institute</span>
+          <p>
+            Studied WordPress development at Cycarts Institute — this
+            experience shaped my career path and aspirations.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Full Stack Development</h3>
+          <span class="meta">2023 · Ideoversity, Arfa Kareem Tower</span>
+          <p>
+            Acquired full stack development skills at Ideoversity, Arfa Kareem
+            Tower, to enhance my WordPress expertise and advance my career journey.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============ SECTION 5: EXPERTISE ============ -->
+    <section class="section" id="expertise">
+      <h2>Expertise</h2>
+      <ul class="skill-list">
+        <li>Plugin Integration</li>
+        <li>Customization</li>
+        <li>Shopify Store Development</li>
+        <li>Shopify Inventory Management</li>
+        <li>Updates and Maintenance</li>
+        <li>Content Management</li>
+        <li>On-Page SEO</li>
+        <li>Responsive Design</li>
+        <li>Performance Optimization</li>
+        <li>Search Engine Optimization (SEO)</li>
+      </ul>
+    </section>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer">
+    <p>
+      Hussain Abbas ·
+      <a href="mailto:hussainabbas91912@gmail.com">hussainabbas91912@gmail.com</a> ·
+      <a href="tel:+923203039049">+92 320 3039049</a>
+    </p>
+  </footer>
+
+  <script>
+    /* ==========================================================
+       PAGE BEHAVIOUR
+       1. Mobile menu open/close
+       2. Highlight the nav link of the section in view
+       Both are written generically — no hard-coded assumptions
+       beyond the ids used in the markup above.
+       ========================================================== */
+    (function () {
+      "use strict";
+
+      /* ---------- 1. Mobile menu ---------- */
+      var nav = document.getElementById("site-nav");
+      var toggle = document.getElementById("nav-toggle");
+      var links = document.getElementById("nav-links");
+
+      toggle.addEventListener("click", function () {
+        var isOpen = nav.classList.toggle("menu-open");
+        toggle.classList.toggle("open", isOpen);
+        toggle.setAttribute("aria-expanded", String(isOpen));
+      });
+
+      // Close the mobile menu after picking a link
+      links.addEventListener("click", function (event) {
+        if (event.target.tagName === "A") {
+          nav.classList.remove("menu-open");
+          toggle.classList.remove("open");
+          toggle.setAttribute("aria-expanded", "false");
+        }
+      });
+
+      /* ---------- 2. Active-section highlight ----------
+         An IntersectionObserver watches each section; whichever
+         section is most visible wins and its menu link gets
+         the .active class. Falls back gracefully in older
+         browsers (no highlight, links still work). */
+      var sections = document.querySelectorAll("main section[id]");
+      var navAnchors = links.querySelectorAll("a");
+
+      if ("IntersectionObserver" in window) {
+        var visible = new Map(); // section id -> visibility ratio
+
+        var observer = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              visible.set(entry.target.id, entry.isIntersecting ? entry.intersectionRatio : 0);
+            });
+
+            // Pick the most visible section; default to the first
+            var bestId = sections.length ? sections[0].id : null;
+            var bestRatio = 0;
+            visible.forEach(function (ratio, id) {
+              if (ratio > bestRatio) {
+                bestRatio = ratio;
+                bestId = id;
+              }
+            });
+
+            navAnchors.forEach(function (anchor) {
+              anchor.classList.toggle("active", anchor.getAttribute("href") === "#" + bestId);
+            });
+          },
+          // Root margin trims the nav bar and bottom edge so a
+          // section counts as "in view" only where a human sees it
+          { rootMargin: "-20% 0px -35% 0px", threshold: [0, 0.25, 0.5, 0.75, 1] }
+        );
+
+        sections.forEach(function (section) {
+          observer.observe(section);
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
